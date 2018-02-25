@@ -10,8 +10,6 @@ public class command {
 // Storage of nodes details received from Bootstrap Server
 	ArrayList<String> Node_info = new ArrayList<String>();
 	
-	static HashMap<Integer, String > map = new HashMap<>();
-	
 public void REG(InetAddress BS_ip, int BS_port, int Node_port, String uname) throws IOException{
 	
 	String Node_IP = InetAddress.getLocalHost().getHostAddress();
@@ -114,7 +112,7 @@ public void join(int Node_port) throws IOException{
 	    if(S_JR[0].equals("0")){	    	
 	    	System.out.println("Status: Join Successful with " + JResponse.getAddress().toString());
 	    	
-	    	//routing table lo ki add cheyi IP's nee
+	    	HashMap<Integer, String > map = new HashMap<>();
 	    	
 	    }else if(S_JR[1].equals("9999")){
 	    	System.err.println("Error: while adding new node to routing table");
