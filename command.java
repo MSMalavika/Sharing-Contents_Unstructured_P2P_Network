@@ -1,16 +1,23 @@
-package UnstructuredP2P;
+//package UnstructuredP2P;
 
+import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Scanner;
 
 public class command {
 	
 // Storage of nodes details received from Bootstrap Server
-	ArrayList<String> Node_info = new ArrayList<String>();
+	ArrayList<String> Node_info = new ArrayList<String>();	
+	Hashtable<String, ArrayList<String>> map = new Hashtable<String, ArrayList<String>>();
+	ArrayList<String> Sock1_RTDetails = new ArrayList<String>();
+	ArrayList<String> Sock2_RTDetails = new ArrayList<String>();
+	ArrayList<String> Sock3_RTDetails = new ArrayList<String>();
 	
 public void REG(InetAddress BS_ip, int BS_port, int Node_port, String uname) throws IOException{
 	
@@ -72,6 +79,15 @@ public void REG(InetAddress BS_ip, int BS_port, int Node_port, String uname) thr
 		    	Node_info.add(Node_3);
 			    	
 			    }
+    String nInfo = new String();
+    for(int j= 0; j<Node_info.size(); j++){
+    	nInfo  = nInfo + Node_info.get(j) + " ";
+    }
+    nInfo = nInfo.trim();
+    byte[] nInfoB = nInfo.getBytes();
+    FileOutputStream nodeInfo = new FileOutputStream("Node_info.txt");
+    nodeInfo.write(nInfoB);
+    nodeInfo.close();
         
     client_Socket.close();
 	}
@@ -84,6 +100,20 @@ public void join(int Node_port) throws IOException{
 	String join_msg = String.format("%04d", len) + " " +join_req;
 	byte[] join_request = join_msg.getBytes();
 	
+	File inFile = new File ("Node_info.txt");
+    String line=null;
+    Scanner sc = new Scanner(inFile);
+    while (sc.hasNextLine())
+    {
+        line = sc.nextLine();
+    }
+    sc.close();
+    System.out.println ("Data from Input file: "+ line);
+    String[] Info_node = line.split(" ");
+    for(int n=0; n<Info_node.length;n++){
+    Node_info.add(Info_node[n]);	
+    }
+    
 	int noIP = Node_info.size();
 	
 	if(noIP == 0) { 
@@ -104,6 +134,8 @@ public void join(int Node_port) throws IOException{
 	
 	byte[] JOIN_response = new byte[65000];
 	
+	int i=0;
+	
 	for(int n=0; n<noIP; n++){
 		DatagramPacket JResponse = new DatagramPacket(JOIN_response, JOIN_response.length);
 	    client_Socket.receive(JResponse);
@@ -112,14 +144,21 @@ public void join(int Node_port) throws IOException{
 	    
 	    String[] S_JR= JR.split(" ");
 	    if(S_JR[0].equals("0")){	    	
-	    	System.out.println("Status: Join Successful with " + JResponse.getAddress().toString());
-	    	
-	    	HashMap<Integer, String > map = new HashMap<>();
-	    	
-	    }else if(S_JR[1].equals("9999")){
+	    	System.out.println("Status: Join Successful with " + JResponse.getAddress().toString());	    	
+	    	String socket = JResponse.getAddress().toString()+":"+ Integer.toString(JResponse.getPort());
+	    	i=i+1;
+	    		if (i==1){
+	    			map.put(socket, Sock1_RTDetails);
+	    			}else if (i==2){
+		    			map.put(socket, Sock2_RTDetails);
+		    			} else if (i==3){
+		    				map.put(socket, Sock3_RTDetails);
+		    				}
+	    		
+	    	}else if(S_JR[1].equals("9999")){
 	    	System.err.println("Error: while adding new node to routing table");
 	    }else {
-	    	System.out.println("Status: "+  JR);
+	    	System.out.println("Status: "+ JR);
 	    }	   
 		}client_Socket.close();
 	}
