@@ -1,4 +1,4 @@
-
+package UnstructuredP2P;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -8,9 +8,9 @@ import java.net.SocketException;
 
 public class server extends Thread {
 	
-	public String Nodeport;
+	public int Nodeport;
 
-	   public server(String Nodeport)
+	   public server(int Nodeport)
 	   {
 	      
 		   this.Nodeport = Nodeport;
@@ -19,7 +19,7 @@ public class server extends Thread {
 	   
 	 public void run(){
 			try {
-				DatagramSocket serverSocket = new DatagramSocket(Integer.parseInt(Nodeport));
+				DatagramSocket serverSocket = new DatagramSocket(Nodeport);
 				
 				while (true){
 					byte[] reqData = new byte[65000];
