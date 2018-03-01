@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 public class unstructpp extends Thread {
 
 	 static command cmd = new command();
-	 public static String Nodeport;
+	 public  String Nodeport;
 	 public unstructpp(String Nodeport) throws SocketException // constructor for the class rcmdd_TCP
 		{
 			this.Nodeport = Nodeport;
@@ -20,9 +20,9 @@ public class unstructpp extends Thread {
 		
 	try{			
 			String NP = args[0];
-		unstructpp daemonThread = new unstructpp(NP);
+		/*unstructpp daemonThread = new unstructpp(NP);
 		daemonThread.setDaemon(true);
-		daemonThread.start();		
+		daemonThread.start();*/		
 						
 				String BSIP = args[1];
 				String Boot_port =args[2];		
@@ -36,7 +36,14 @@ public class unstructpp extends Thread {
 						{
 							System.out.println("Error: Port range, Range: 5000-65535");
 							System.exit(1);
-						}		
+						}
+					
+					// start the server thread 
+					
+					// start the client thread 
+					
+				
+					
 					System.out.println("option is "+option);
 				switch (option){
 				case "REG":
