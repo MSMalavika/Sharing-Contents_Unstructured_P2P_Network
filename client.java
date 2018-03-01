@@ -1,9 +1,8 @@
-
+package UnstructuredP2P;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.util.Scanner;
 
 
 public class client extends Thread {
@@ -11,7 +10,9 @@ public class client extends Thread {
 	public String option;
 	public int NP, Boot_port;
 	public InetAddress BSIP;
-
+	
+	static command cmd = new command();
+	
 	   public client(int NP, InetAddress BSIP, int Boot_port, String option)
 	   {
 	      this.NP = NP;
@@ -27,12 +28,25 @@ public class client extends Thread {
 					switch (option){
 					case "REG":
 						System.out.println("reg case");
-							String uname = args[4];							
-							cmd.REG(BS_ip,BS_port,Node_port,uname);
+						
+						Scanner uName = new Scanner(System.in);
+						String uname =uName.next();							
+							
+							try {
+								cmd.REG(BSIP,Boot_port,NP,uname);
+							} catch (IOException e) {
+								
+								System.err.println(e);
+							}
 							break;
 					case "JOIN":
 						System.out.println("join case");
-						cmd.join(Node_port);
+							try {
+								cmd.join(NP);
+							} catch (IOException e) {
+								
+								System.err.println(e);
+							}
 						break;		
 					case "h":
 							
