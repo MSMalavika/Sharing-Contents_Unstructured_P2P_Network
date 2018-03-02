@@ -1,11 +1,17 @@
 package UnstructuredP2P;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
@@ -96,9 +102,8 @@ public class command {
     client_Socket.close();
 	}
 
-	public void join(int Node_port) throws IOException{
-	
-	
+	public void join(int Node_port) throws IOException{	
+
 			// Joining the local node with the known nodes from BS
 			
 				String Node_IP = InetAddress.getLocalHost().getHostAddress();
@@ -181,6 +186,7 @@ public class command {
 									    }	   
 					}client_Socket.close();
 		}
+
 }
 
 		public void DEL(InetAddress BS_ip, int BS_port) throws IOException{
