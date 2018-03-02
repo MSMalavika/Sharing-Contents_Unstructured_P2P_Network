@@ -125,8 +125,12 @@ public void join(int Node_port) throws IOException{
 // sending JOIN message to the nodes	
 	for(int k=0; k<noIP; k++){	
 		
-		String[] SockADD= Node_info.get(k).split(":");		
+		String[] SockADD= Node_info.get(k).split(":");
+		System.out.println("node_info "+ k +" "+ Node_info.get(k));
+		System.out.println("sock add "+ k+" "+ SockADD[0]+" "+SockADD[1] );
+		System.out.println(new String(join_request));
 		DatagramPacket JOIN_Packet = new DatagramPacket(join_request, join_request.length, InetAddress.getByName(SockADD[0]), Integer.parseInt(SockADD[1]));
+		System.out.println("join mesg sent to node "+k);
 		client_Socket.send(JOIN_Packet);
 	}	
 	
