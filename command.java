@@ -169,4 +169,42 @@ public void join(int Node_port) throws IOException{
 		}client_Socket.close();
 	}
 }
+
+public void DEL(InetAddress BS_ip, int BS_port, int Node_port, String uname) throws IOException{
+	
+	String Node_IP = InetAddress.getLocalHost().getHostAddress();
+	String request =  "DEL IPADDRESS" + " " + Node_IP + " " + Node_port + " " + uname ;
+	int msg_len =  request.length() + 5;
+	String del_msg = String.format("%04d", msg_len) + " " +request;
+	byte[] del_request = del_msg.getBytes();
+	
+	DatagramSocket client_Socket = new DatagramSocket();	
+	
+//sending the register request to the BS
+	
+	DatagramPacket DEL_Packet = new DatagramPacket(del_request, del_request.length, BS_ip, BS_port);
+	client_Socket.send(DEL_Packet);
+	
+//receiving node socket address from BS
+	
+	byte[] BS_response = new byte[65000];
+    DatagramPacket BSResponse = new DatagramPacket(BS_response, BS_response.length);
+    client_Socket.receive(BSResponse); 
+    
+    String BSR = new String(BSResponse.getData(),0,BSResponse.getLength());
+    String[] BS_Response = BSR.split(" ");
+    
+    if (BS_Response[5].equals("9998")){
+	    	System.err.println("Error: Not registered for the given user name" );
+	    }else if(BS_Response[4].equals("-1")){
+	    	System.out.println("Error: Error in DEL command ");
+	    }else if(BS_Response[7].equals("1")){
+	    	System.out.println("Status: UNREGISTERED");
+	    }else{
+	    	System.out.println("The DEL response received from BS: "+ BSR);
+	    }
+            
+    client_Socket.close();
+	}
+
 }

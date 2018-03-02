@@ -47,7 +47,14 @@ public class client  {
 								
 								System.err.println(e);
 							}
-						break;		
+						break;
+					
+					case "UNREGISTER":
+							System.out.println("If you want to unregister a node give: <IP:Port> <user name>");	
+							System.out.println("If you want to unregister the entire network give: <user name>");
+							String uname1 =System.console().readLine();
+							cmd.DEL(BSIP, Boot_port,NP, uname1);
+						
 					case "h":
 							
 							// help
