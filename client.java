@@ -1,4 +1,4 @@
-//package UnstructuredP2P;
+package UnstructuredP2P;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -19,7 +19,7 @@ public class client  {
 	     
 	   }
 	   
-	 public void run() {
+	 public void run() throws IOException {
 		 
 		 System.out.println("Give the command  for client");			
 		 String option = System.console().readLine();
@@ -50,10 +50,8 @@ public class client  {
 						break;
 					
 					case "UNREGISTER":
-							System.out.println("If you want to unregister a node give: <IP:Port> <user name>");	
-							System.out.println("If you want to unregister the entire network give: <user name>");
-							String uname1 =System.console().readLine();
-							cmd.DEL(BSIP, Boot_port,NP, uname1);
+							
+							cmd.DEL(BSIP, Boot_port);
 						
 					case "h":
 							

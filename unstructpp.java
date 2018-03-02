@@ -1,10 +1,7 @@
-//package UnstructuredP2P;
+package UnstructuredP2P;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class unstructpp  {	
@@ -74,7 +71,12 @@ public class unstructpp  {
         	public void run() {
         		
         		client clientMode = new client(NP,BSIP,Boot_port);
-        		clientMode.run();
+        		try {
+					clientMode.run();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
         			   
         		   }
         	
