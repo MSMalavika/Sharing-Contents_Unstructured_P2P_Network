@@ -1,36 +1,35 @@
-package UnstructuredP2P;
+//package UnstructuredP2P;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Scanner;
 
-
-public class client extends Thread {
+public class client  {
 	
-	public String option;
+	//public String option;
 	public int NP, Boot_port;
 	public InetAddress BSIP;
 	
 	static command cmd = new command();
 	
-	   public client(int NP, InetAddress BSIP, int Boot_port, String option)
+	   public client(int NP, InetAddress BSIP, int Boot_port)
 	   {
 	      this.NP = NP;
 	      this.BSIP = BSIP;
 	      this.Boot_port = Boot_port;
-	      this.option = option;
+	     
 	   }
 	   
 	 public void run() {
 		 
-			
-						System.out.println("option is "+option);
+		 System.out.println("Give the command  for client");			
+		 String option = System.console().readLine();
+					
+			//System.out.println("option is "+option);
 					switch (option){
-					case "REG":
-						System.out.println("reg case");
-						
-						Scanner uName = new Scanner(System.in);
-						String uname =uName.next();							
+					
+					case "REG":						
+						System.out.println("Give the username with which you want to register ");						
+						String uname =System.console().readLine();						
 							
 							try {
 								cmd.REG(BSIP,Boot_port,NP,uname);
@@ -39,8 +38,9 @@ public class client extends Thread {
 								System.err.println(e);
 							}
 							break;
+							
 					case "JOIN":
-						System.out.println("join case");
+						
 							try {
 								cmd.join(NP);
 							} catch (IOException e) {

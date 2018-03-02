@@ -1,4 +1,4 @@
-package UnstructuredP2P;
+//package UnstructuredP2P;
 
 import java.io.FileOutputStream;
 import java.io.File;
@@ -14,7 +14,7 @@ public class command {
 	
 // Storage of nodes details received from Bootstrap Server
 	ArrayList<String> Node_info = new ArrayList<String>();	
-	Hashtable<String, ArrayList<String>> map = new Hashtable<String, ArrayList<String>>();
+	Hashtable<String, ArrayList<String>> routingTable = new Hashtable<String, ArrayList<String>>();
 	ArrayList<String> Sock1_RTDetails = new ArrayList<String>();
 	ArrayList<String> Sock2_RTDetails = new ArrayList<String>();
 	ArrayList<String> Sock3_RTDetails = new ArrayList<String>();
@@ -95,7 +95,7 @@ public void REG(InetAddress BS_ip, int BS_port, int Node_port, String uname) thr
 public void join(int Node_port) throws IOException{
 	
 	String Node_IP = InetAddress.getLocalHost().getHostAddress();
-	String join_req = " JOIN" + " " + Node_IP + " " + Node_port;
+	String join_req = "JOIN" + " " + Node_IP + " " + Node_port;
 	int len = join_req.length() + 4;
 	String join_msg = String.format("%04d", len) + " " +join_req;
 	byte[] join_request = join_msg.getBytes();
@@ -143,19 +143,21 @@ public void join(int Node_port) throws IOException{
 	    String JR = new String(JResponse.getData(),0,JResponse.getLength());
 	    
 	    String[] S_JR= JR.split(" ");
-	    if(S_JR[0].equals("0")){	    	
+	    if(S_JR[2].equals("0")){	    	
 	    	System.out.println("Status: Join Successful with " + JResponse.getAddress().toString());	    	
 	    	String socket = JResponse.getAddress().toString()+":"+ Integer.toString(JResponse.getPort());
 	    	i=i+1;
 	    		if (i==1){
-	    			map.put(socket, Sock1_RTDetails);
+	    			routingTable.put(socket, Sock1_RTDetails);
 	    			}else if (i==2){
-		    			map.put(socket, Sock2_RTDetails);
+	    				routingTable.put(socket, Sock2_RTDetails);
 		    			} else if (i==3){
-		    				map.put(socket, Sock3_RTDetails);
+		    				routingTable.put(socket, Sock3_RTDetails);
 		    				}
 	    		
-	    	}else if(S_JR[1].equals("9999")){
+	    		System.out.println("map is "+ routingTable);
+	    		
+	    	}else if(S_JR[2].equals("9999")){
 	    	System.err.println("Error: while adding new node to routing table");
 	    }else {
 	    	System.out.println("Status: "+ JR);
