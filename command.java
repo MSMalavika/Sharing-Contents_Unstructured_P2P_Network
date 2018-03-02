@@ -1,11 +1,17 @@
 //package UnstructuredP2P;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
@@ -161,6 +167,22 @@ public void join(int Node_port) throws IOException{
 	    		
 	    		System.out.println("map is "+ routingTable);
 	    		
+	    		File file = new File("RoutingTable.txt");
+				try
+				{
+				   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				   for(String p:routingTable.keySet())
+				   {
+				      bw.write(p + ":" + routingTable.get(p));
+				      bw.newLine();
+				   }
+				   bw.flush();
+				   bw.close();
+				}catch (IOException e) {
+					System.out.println("Error: " + e);
+					e.printStackTrace();
+				}
+				
 	    	}else if(S_JR[2].equals("9999")){
 	    	System.err.println("Error: while adding new node to routing table");
 	    }else {
