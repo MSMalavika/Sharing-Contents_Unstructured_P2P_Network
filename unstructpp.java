@@ -1,6 +1,10 @@
-package UnstructuredP2P;
+//package UnstructuredP2P;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class unstructpp  {	
@@ -11,7 +15,8 @@ public class unstructpp  {
 				String NP = args[0];
 				String BSIP = args[1];
 				String Boot_port =args[2];		
-				String option = args[3];
+				
+				if (args.length==3) {
 					
 					int Node_port = Integer.parseInt(NP);		
 					InetAddress BS_ip = InetAddress.getByName(BSIP);		
@@ -23,18 +28,30 @@ public class unstructpp  {
 							System.exit(1);
 						}
 					
-					// start the server thread 
-					server serverThread = new server(Node_port);	 
-					serverThread.start();
+					// Server thread 					
+						serverThread(Node_port);
 					
-					// start the client thread 
-				      client clientThread = new client(Node_port,BS_ip, BS_port,option);
-				      clientThread.start();
+					// Client thread				      
+						clientThread(Node_port,BS_ip, BS_port);
+						
+				} else if(args.length==4) {
+					
+					String option = args[3];
+					
+					if(option.equals("h")) {
+						System.out.println("help");
+					} else {
+						System.out.println(" Wrong commad try using help : unstructpp <Node port> <bootstrap ip> <bootstrap port> h");
+					}
+					
+				}else {
+					System.out.println("Oops something went wrong");
+				}
+					
 				      
 		}catch(ArrayIndexOutOfBoundsException e)
-			{	System.err.println("Error: Missing arguments");
-				System.out.println("Usage: unstructpp <Node port> <bootstrap ip> <bootstrap port> <option>");
-				System.out.println("option: h(help) or REG(register)");
+			{	System.err.println("Error: Missing arguments, See help for correct instructions  ");				
+				System.out.println("Usage: unstructpp <Node port> <bootstrap ip> <bootstrap port> h");				
 			}
 		catch(NumberFormatException e)
 			{
@@ -43,10 +60,37 @@ public class unstructpp  {
 		catch(UnknownHostException e)
 			{
 				System.err.println("Error: Check IP Address format");
-			}
+			}	
 		
-		
-	}		
+	}	
+	
+	public int NP, Boot_port;
+	public InetAddress BSIP;
+	
+	static command cmd = new command();	
 
-		
+	public static void clientThread(int NP, InetAddress BSIP, int Boot_port) {
+        (new Thread() {
+        	public void run() {
+        		
+        		client clientMode = new client(NP,BSIP,Boot_port);
+        		clientMode.run();
+        			   
+        		   }
+        	
+        }).start();
+	}
+        
+    public static void serverThread(int Nodeport) {
+        (new Thread() {   
+        	public void run(){
+    			
+        		server serverMode = new server(Nodeport);
+        		serverMode.run();
+        		
+    			
+    		}
+        	
+        }).start();
+    }
 }
