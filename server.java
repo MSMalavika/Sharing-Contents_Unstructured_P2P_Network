@@ -57,8 +57,10 @@ public class server {
 							
 						    while (scanner.hasNextLine()) 
 							    {
-							        String columns = scanner.nextLine();	
-							        routingTable1.put(columns,RTDetails);
+							        String[] columns = scanner.nextLine().split(" ");
+							        for(int i=1;i<columns.length;i++) 
+							        {RTDetails.add(columns[i]);}							        
+							        routingTable1.put(columns[0],RTDetails);
 							    }scanner.close();
 
 						    System.out.println("Map is "+ routingTable1);
