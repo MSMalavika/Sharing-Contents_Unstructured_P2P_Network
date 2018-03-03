@@ -1,6 +1,7 @@
 package UnstructuredP2P;
 
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,6 +14,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
+import java.util.Set;
 
 public class command {
 	
@@ -324,20 +326,69 @@ public class command {
 		DatagramSocket client_Socket = new DatagramSocket();
 		
 		Hashtable<String, ArrayList<String>> routingTable = new Hashtable<String, ArrayList<String>>();
+		ArrayList<String> RTDetails = new ArrayList<String>();
 		
 		//// working on the code here
 		//// leave from the node in the table
 		
+		String leaveip = InetAddress.getLocalHost().getHostAddress();
+		
+		Scanner scanner = new Scanner(new FileReader("RoutingTable.txt"));		
+	    while (scanner.hasNextLine()) 
+		    {
+		        String[] columns = scanner.nextLine().split(" ");	
+		        for(int i=1;i<columns.length;i++) 
+					{RTDetails.add(columns[i]);}							        
+				routingTable.put(columns[0],RTDetails);
+		    }scanner.close();
+
+	    System.out.println("Map is "+ routingTable);
+		
+		String leaveMsg= " LEAVE "+leaveip+ " "+Node_port;
+		String leaveReq= String.format("%04d", (leaveMsg.length()+4))+ leaveMsg ;
+		byte[] reqLeave = leaveReq.getBytes();
+		
+		Set<String> RTKeys= routingTable.keySet();
+		String[] sockAddkey = new String[RTKeys.size()];
+		RTKeys.toArray(sockAddkey);
+		for(int i=0;i<routingTable.size();i++)
+			{
+				String[] sockAdd = sockAddkey[i].split(":");
+				InetAddress ip= InetAddress.getByName(sockAdd[0]);
+				int port = Integer.parseInt(sockAdd[1]);
 				
+				DatagramPacket leavePacket = new DatagramPacket(reqLeave, reqLeave.length, ip, port);
+				client_Socket.send(leavePacket);
+				
+				byte[] leavrResponse = new byte[65000];
+			    DatagramPacket leaveRes = new DatagramPacket(leavrResponse, leavrResponse.length);
+			    client_Socket.receive(leaveRes);
+			    
+			    String leave = new String(leaveRes.getData(),0,leaveRes.getLength());
+			    String[] msgLeave = leave.split(" ");
+			    
+			    if (msgLeave[2].equals("0")) {
+			    	
+			    }
+			    
+				
+			}
+		
+			// deleting the routing table	
+				File file = new File("RoutingTable.txt");         
+			        if(file.delete())
+			        { System.out.println("Status: Leave successful");}  
+				        else
+				        {System.out.println("Failed to delete the file");}
 		
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 //		leaving from BS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////		
-		String BSleaveip = InetAddress.getLocalHost().getHostAddress();
+		
 		System.out.println("Give the username to leave the network  ");						
 		String uname =System.console().readLine();
 		
-		String request =  "DEL IPADDRESS" + " " + BSleaveip + " " + Node_port + " " + uname ;					
+		String request =  "DEL IPADDRESS" + " " + leaveip + " " + Node_port + " " + uname ;					
 		int msg_len =  request.length() + 5;
 		String del_msg = String.format("%04d", msg_len) + " " +request;
 		byte[] del_request = del_msg.getBytes();
