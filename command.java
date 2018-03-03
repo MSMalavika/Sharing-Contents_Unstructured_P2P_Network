@@ -5,13 +5,9 @@ import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.io.Writer;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
@@ -143,11 +139,8 @@ public class command {
 					for(int k=0; k<noIP; k++){	
 						
 						String[] SockADD= Node_info.get(k).split(":");
-						System.out.println("node_info "+ k +" "+ Node_info.get(k));
-						System.out.println("sock add "+ k+" "+ SockADD[0]+" "+SockADD[1] );
 						System.out.println(new String(join_request));
 						DatagramPacket JOIN_Packet = new DatagramPacket(join_request, join_request.length, InetAddress.getByName(SockADD[0]), Integer.parseInt(SockADD[1]));
-						System.out.println("join mesg sent to node "+k);
 						client_Socket.send(JOIN_Packet);
 					}	
 					
@@ -178,6 +171,23 @@ public class command {
 							    				}
 						    		
 						    		System.out.println("map is "+ routingTable);
+						    		
+						    		//Writing hash map into a file
+						    		File file = new File("RoutingTable.txt"); 
+									try
+									{
+									   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+									   for(String p:routingTable.keySet())
+									   {
+									      bw.write(p + ":" + routingTable.get(p));
+									      bw.newLine();
+									   }
+									   bw.flush();
+									   bw.close();
+									}catch (IOException e) {
+										System.out.println("Error: " + e);
+										e.printStackTrace();
+									}
 						    		
 							    	}else if(S_JR[2].equals("9999")){
 							    			System.err.println("Error: while adding new node to routing table");
@@ -225,7 +235,7 @@ public class command {
 				    	
 				    	switch(BSunReg_res[5]) {
 				    	case "1":
-				    		System.out.println();
+				    		System.out.println("Status: Successfully unregistered!");
 				    		break;
 				    	case "-1":
 				    		System.err.println("Status: Error occurred while unregistering the node ");
