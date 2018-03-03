@@ -27,31 +27,21 @@ public class client  {
 			//System.out.println("option is "+option);
 					switch (option){
 					
-					case "REG":						
-						System.out.println("Give the username with which you want to register ");						
-						String uname =System.console().readLine();						
+					case "REG":							
+						cmd.reg(BSIP,Boot_port,NP);
+						break;
 							
-							try {
-								cmd.REG(BSIP,Boot_port,NP,uname);
-							} catch (IOException e) {
-								
-								System.err.println(e);
-							}
-							break;
-							
-					case "JOIN":
-						
-							try {
-								cmd.join(NP);
-							} catch (IOException e) {
-								
-								System.err.println(e);
-							}
+					case "JOIN":						
+						cmd.join(NP);
 						break;
 					
-					case "UNREGISTER":
-							
-							cmd.DEL(BSIP, Boot_port);
+					case "UNREGISTER":							
+							cmd.unReg(BSIP, Boot_port);
+							break;
+					
+					case "LEAVE":						
+						cmd.leave(BSIP, Boot_port,NP);
+						break;
 						
 					case "h":
 							

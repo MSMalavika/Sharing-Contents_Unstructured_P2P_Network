@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
@@ -16,12 +18,12 @@ public class command {
 	
 // Storage of nodes details received from Bootstrap Server
 	ArrayList<String> Node_info = new ArrayList<String>();	
-	Hashtable<String, ArrayList<String>> routingTable = new Hashtable<String, ArrayList<String>>();
-	ArrayList<String> Sock1_RTDetails = new ArrayList<String>();
-	ArrayList<String> Sock2_RTDetails = new ArrayList<String>();
-	ArrayList<String> Sock3_RTDetails = new ArrayList<String>();
 	
-	public void REG(InetAddress BS_ip, int BS_port, int Node_port, String uname) throws IOException{
+	public void reg(InetAddress BS_ip, int BS_port, int Node_port)   {
+		
+		try {
+		System.out.println("Give the username with which you want to register ");						
+		String uname =System.console().readLine();
 	
 		String Node_IP = InetAddress.getLocalHost().getHostAddress();
 		String request =  "REG" + " " + Node_IP + " " + Node_port + " " + uname ;
@@ -96,9 +98,20 @@ public class command {
 		    nodeInfo.close();
         
     client_Socket.close();
+	} catch( IOException a) {
+		System.err.println("IOError in reg: "+a);
 	}
+}
 
-	public void join(int Node_port) throws IOException{	
+	public void join(int Node_port) {	
+		
+		try {
+			Hashtable<String, ArrayList<String>> routingTable = new Hashtable<String, ArrayList<String>>();
+			ArrayList<String> Sock1_RTDetails = new ArrayList<String>();
+			ArrayList<String> Sock2_RTDetails = new ArrayList<String>();
+			ArrayList<String> Sock3_RTDetails = new ArrayList<String>();
+		
+		DatagramSocket client_Socket = new DatagramSocket();
 
 			// Joining the local node with the known nodes from BS
 			
@@ -109,15 +122,15 @@ public class command {
 				byte[] join_request = join_msg.getBytes();
 				
 			// Sending the join request to the node that are received from BS when registered 
-			
-				File inFile = new File ("Node_info.txt");
-			    String line=null;
-			    Scanner sc = new Scanner(inFile);
-			    while (sc.hasNextLine())
-				    {
-				        line = sc.nextLine();
-				    }
-			    sc.close();
+				
+						File inFile = new File ("Node_info.txt");
+					    String line=null;
+					    Scanner sc = new Scanner(inFile);
+					    while (sc.hasNextLine())
+						    {
+						        line = sc.nextLine();
+						    }
+					    sc.close();
 			    
 		    System.out.println ("Data from Input file: "+ line);
 		    String[] Info_node = line.split(" ");
@@ -132,8 +145,6 @@ public class command {
 				{ 
 					System.out.println("this is the first node");			
 					} else{
-					
-					DatagramSocket client_Socket = new DatagramSocket();	
 					
 				// sending JOIN message to the nodes	
 					for(int k=0; k<noIP; k++){	
@@ -173,33 +184,39 @@ public class command {
 						    		System.out.println("map is "+ routingTable);
 						    		
 						    		//Writing hash map into a file
-						    		File file = new File("RoutingTable.txt"); 
-									try
-									{
-									   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-									   for(String p:routingTable.keySet())
-									   {
-									      bw.write(p + ":" + routingTable.get(p));
-									      bw.newLine();
-									   }
-									   bw.flush();
-									   bw.close();
-									}catch (IOException e) {
-										System.out.println("Error: " + e);
-										e.printStackTrace();
-									}
+							    		File file = new File("RoutingTable.txt"); 
+										try
+										{
+										   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+										   for(String p:routingTable.keySet())
+										   {
+										      bw.write(p + ":" + routingTable.get(p));
+										      bw.newLine();
+										   }
+										   bw.flush();
+										   bw.close();
+										}catch (IOException e) {
+											System.out.println("Error: " + e);
+											e.printStackTrace();
+										}
 						    		
 							    	}else if(S_JR[2].equals("9999")){
 							    			System.err.println("Error: while adding new node to routing table");
 									    }else {
 									    	System.out.println("Status: "+ JR);
 									    }	   
-					}client_Socket.close();
+					}client_Socket.close();}
+
+		} catch(IOException i) {
+			System.err.println("IOError in join: "+i);
+		} catch(NullPointerException n) {
+			System.out.println("This is the fist node "+n);
 		}
 
 }
 
-		public void DEL(InetAddress BS_ip, int BS_port) throws IOException{
+	public void unReg(InetAddress BS_ip, int BS_port)  {
+		try {
 			
 			System.out.println("If you want to unregister a node give: <IP:Port> <user name>");	
 			System.out.println("If you want to unregister the entire network give: <user name>");
@@ -296,7 +313,72 @@ public class command {
 					System.out.println("Give the command properly");
 						
 			}
+		}catch (IOException b) {
+			System.err.println("IOError in join: "+b);
+		}
 			
 		}
-
+	
+	public void leave(InetAddress BS_ip, int BS_port,int Node_port)  {
+	 try {	
+		DatagramSocket client_Socket = new DatagramSocket();
+		
+		Hashtable<String, ArrayList<String>> routingTable = new Hashtable<String, ArrayList<String>>();
+		
+		//// working on the code here
+		//// leave from the node in the table
+		
+				
+		
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		leaving from BS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////		
+		String BSleaveip = InetAddress.getLocalHost().getHostAddress();
+		System.out.println("Give the username to leave the network  ");						
+		String uname =System.console().readLine();
+		
+		String request =  "DEL IPADDRESS" + " " + BSleaveip + " " + Node_port + " " + uname ;					
+		int msg_len =  request.length() + 5;
+		String del_msg = String.format("%04d", msg_len) + " " +request;
+		byte[] del_request = del_msg.getBytes();
+		
+	// Sending the unregister request to the BS
+		
+		DatagramPacket DEL_Packet = new DatagramPacket(del_request, del_request.length, BS_ip, BS_port);
+		client_Socket.send(DEL_Packet);
+		
+	//receiving node socket address from BS
+		
+		byte[] BS_response = new byte[65000];
+	    DatagramPacket BSResponse = new DatagramPacket(BS_response, BS_response.length);
+	    client_Socket.receive(BSResponse); 
+	    
+	    String BSR = new String(BSResponse.getData(),0,BSResponse.getLength());
+	    String[] BS_Response = BSR.split(" ");
+	    
+	    if (BS_Response[5].equals("9998")){
+		    	System.err.println("Error: Not registered for the given user name" );
+		    }else if(BS_Response[4].equals("-1")){
+		    	System.out.println("Error: Error in DEL command ");
+		    }else if(BS_Response[7].equals("1")){
+		    	System.out.println("Status: UNREGISTERED from BS");
+		    }else{
+		    	System.out.println("The DEL response received from BS: "+ BSR);
+		    }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////	
+		
+		
+		client_Socket.close();
+		}catch (SocketException s) {
+		 System.err.println("Socket Error in leave: "+s);
+		}catch (UnknownHostException unh) {
+		 System.err.println("Unknown Host Error in leave: "+unh);		 
+		}catch (IOException unh) {
+			 System.err.println("Socket Error in leave: "+unh);
+			 }
+		
+		
+		
+		
+	}
 }
