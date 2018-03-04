@@ -351,6 +351,7 @@ public class command {
 		Set<String> RTKeys= routingTable.keySet();
 		String[] sockAddkey = new String[RTKeys.size()];
 		RTKeys.toArray(sockAddkey);
+		int count =0;
 		for(int i=0;i<routingTable.size();i++)
 			{
 				String[] sockAdd = sockAddkey[i].split(":");
@@ -368,18 +369,21 @@ public class command {
 			    String[] msgLeave = leave.split(" ");
 			    
 			    if (msgLeave[2].equals("0")) {
-			    	
+			    	System.out.println("Status: Leave ok from "+leaveRes.getAddress().toString());
+			    	count+=count;
 			    }
-			    
 				
 			}
-		
+		if(count==routingTable.size()){
 			// deleting the routing table	
 				File file = new File("RoutingTable.txt");         
-			        if(file.delete())
+			        if(file.delete() )
 			        { System.out.println("Status: Leave successful");}  
 				        else
-				        {System.out.println("Failed to delete the file");}
+				        {System.out.println("Failed to delete the Routing table");}
+		}else{
+			System.err.println("Status: Could not leave due to another node");
+		}
 		
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 //		leaving from BS
