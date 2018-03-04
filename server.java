@@ -19,11 +19,9 @@ public class server {
 	public int Nodeport;
 
 	   public server(int Nodeport)
-	   {
-	      
+	   {	      
 		   this.Nodeport = Nodeport;
-	   }
-	   
+	   }	   
 	   
 	 public void run(){
 			try {
@@ -39,16 +37,16 @@ public class server {
 		            int reqPort = incomming_req.getPort();
 		            String inRequest = new String(incomming_req.getData(),0,incomming_req.getLength());
 		            
+		            ArrayList<String> RTDetails = new ArrayList<String>();
+	            	Hashtable<String, ArrayList<String>> routingTable1 = new Hashtable<String,ArrayList<String>>();
+		            
 		            System.out.println("msg received in server: " + inRequest );
 		            
 		            String[] server_req = inRequest.split(" ");
 		            String server_cmd = server_req[1];
 		            
 		            switch (server_cmd){
-		            case "JOIN":		            	
-		            	
-		            	ArrayList<String> RTDetails = new ArrayList<String>();
-		            	Hashtable<String, ArrayList<String>> routingTable1 = new Hashtable<String,ArrayList<String>>();
+		            case "JOIN":
 		            	
 		            	String sockADD= server_req[2]+":"+server_req[3];
 		            	
@@ -95,7 +93,7 @@ public class server {
 				         // Sending the JOINOK response
 								DatagramPacket join_response = new DatagramPacket(joinOkmsg, joinOkmsg.length, reqIP, reqPort);
 								serverSocket.send(join_response);
-								
+						
 							}else if (!routingTable1.containsKey(sockADD))
 								{
 									routingTable1.put(sockADD, RTDetails);
@@ -107,6 +105,22 @@ public class server {
 						         // Sending the JOINOK response
 										DatagramPacket join_response = new DatagramPacket(joinOkmsg, joinOkmsg.length, reqIP, reqPort);
 										serverSocket.send(join_response);
+										
+										// RT update
+										File file = new File("RoutingTable.txt"); 
+										try
+										{
+										   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+										   for(String p:routingTable1.keySet())
+										   {
+										      bw.write(p + ":" + routingTable1.get(p));
+										      bw.newLine();
+										   }
+										   bw.flush();
+										   bw.close();
+										}catch (IOException e) {
+											System.out.println("Error: " + e);
+											e.printStackTrace();}
 										
 									}else {
 											String joinErr = "0016 JOINOK 9999";
@@ -125,14 +139,53 @@ public class server {
 										serverSocket.send(joinresponse);
 									}
 		            	break;
-		            
+		            	
+		            case "LEAVE":
+		            	String leaveSockAdd=server_req[2]+";"+server_req[3];
+		            // Reading RoutingTable.text 		            	
+		            	
+						try {
+							Scanner scanner = new Scanner(new FileReader("RoutingTable.txt"));
+							
+						    while (scanner.hasNextLine()) 
+							    {
+							        String[] columns = scanner.nextLine().split(" ");
+							        for(int i=1;i<columns.length;i++) 
+							        {RTDetails.add(columns[i]);}							        
+							        routingTable1.put(columns[0],RTDetails);
+							    }scanner.close();
+
+						    System.out.println("Map is "+ routingTable1);
+							
+						}catch(FileNotFoundException f) {
+							System.err.println("Ststus: RoutingTable.txt not found ");
+						}
+		            	
+		            // removing the sockaddd
+						routingTable1.remove(leaveSockAdd);
+		            // writing to RoutingTable.text  
+						File file = new File("RoutingTable.txt"); 
+						try
+						{
+						   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+						   for(String p:routingTable1.keySet())
+						   {
+						      bw.write(p + ":" + routingTable1.get(p));
+						      bw.newLine();
+						   }
+						   bw.flush();
+						   bw.close();
+						}catch (IOException e) {
+							System.out.println("Error: " + e);
+							e.printStackTrace();}
+		            	
+						break;
 		            default:
 		            	System.out.println(" The incoming request is  "+inRequest);
 		            	break;
 		            }
 		            	
-				}				
-								
+				}			
 				
 			} catch (NumberFormatException | SocketException e) {				
 				e.printStackTrace();
