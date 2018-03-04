@@ -370,8 +370,11 @@ public class command {
 			    
 			    if (msgLeave[2].equals("0")) {
 			    	System.out.println("Status: Leave ok from "+leaveRes.getAddress().toString());
+			    	routingTable.remove(sockAddkey[i]);
 			    	count+=count;
-			    }
+			    	}else if(msgLeave[2].equals("9999")) {
+			    		System.err.println("Error: Leave is unsuccessful from "+leaveRes.getAddress().toString());
+			    	}
 				
 			}
 		if(count==routingTable.size()){
@@ -381,47 +384,62 @@ public class command {
 			        { System.out.println("Status: Leave successful");}  
 				        else
 				        {System.out.println("Failed to delete the Routing table");}
-		}else{
-			System.err.println("Status: Could not leave due to another node");
-		}
-		
+			        
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//		leaving from BS
+//leaving from BS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////		
-		
-		System.out.println("Give the username to leave the network  ");						
+		System.out.println("Status: Unregestring from BS");
+		System.out.println(" Give the username to leave the network  ");						
 		String uname =System.console().readLine();
 		
 		String request =  "DEL IPADDRESS" + " " + leaveip + " " + Node_port + " " + uname ;					
 		int msg_len =  request.length() + 5;
 		String del_msg = String.format("%04d", msg_len) + " " +request;
 		byte[] del_request = del_msg.getBytes();
-		
-	// Sending the unregister request to the BS
-		
+
+// Sending the unregister request to the BS
+
 		DatagramPacket DEL_Packet = new DatagramPacket(del_request, del_request.length, BS_ip, BS_port);
 		client_Socket.send(DEL_Packet);
-		
-	//receiving node socket address from BS
-		
+
+//receiving node socket address from BS
+
 		byte[] BS_response = new byte[65000];
-	    DatagramPacket BSResponse = new DatagramPacket(BS_response, BS_response.length);
-	    client_Socket.receive(BSResponse); 
-	    
-	    String BSR = new String(BSResponse.getData(),0,BSResponse.getLength());
-	    String[] BS_Response = BSR.split(" ");
-	    
-	    if (BS_Response[5].equals("9998")){
-		    	System.err.println("Error: Not registered for the given user name" );
-		    }else if(BS_Response[4].equals("-1")){
-		    	System.out.println("Error: Error in DEL command ");
-		    }else if(BS_Response[7].equals("1")){
-		    	System.out.println("Status: UNREGISTERED from BS");
-		    }else{
-		    	System.out.println("The DEL response received from BS: "+ BSR);
-		    }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////	
+		DatagramPacket BSResponse = new DatagramPacket(BS_response, BS_response.length);
+		client_Socket.receive(BSResponse); 
 		
+		String BSR = new String(BSResponse.getData(),0,BSResponse.getLength());
+		String[] BS_Response = BSR.split(" ");
+
+		if (BS_Response[5].equals("9998")){
+				System.err.println("Error: Not registered for the given user name" );
+			}else if(BS_Response[4].equals("-1")){
+					System.out.println("Error: Error in DEL command ");
+				}else if(BS_Response[7].equals("1")){
+					System.out.println("Status: UNREGISTERED from BS");
+					}else{
+						System.out.println("The DEL response received from BS: "+ BSR);
+						}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+			        
+		}else{	
+			System.out.println(" Error: Leave Unsuccessful ");
+				File file = new File("RoutingTable.txt"); 
+				try
+				{
+				   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				   for(String p:routingTable.keySet())
+				   {
+				      bw.write(p + ":" + routingTable.get(p));
+				      bw.newLine();
+				   }
+				   bw.flush();
+				   bw.close();
+				}catch (IOException e) {
+					System.out.println("Error: " + e);
+					e.printStackTrace();
+			}
+		}
 		
 		client_Socket.close();
 		}catch (SocketException s) {
