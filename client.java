@@ -33,8 +33,9 @@ public class client  {
 		 while(true){
 			 String option = scan.next();
 		 	
-					
 			//System.out.println("option is "+option);
+		 
+		 /// resource allocation 
 					switch (option){
 					
 					case "UNREGISTER":							
@@ -44,7 +45,7 @@ public class client  {
 					case "LEAVE":						
 						cmd.leave(BSIP, Boot_port,NP);
 						break;
-						
+					
 					case "QUERY":						
 						cmd.query(NP);
 						break;
@@ -52,7 +53,6 @@ public class client  {
 					case "resAll":						
 						cmd.resourceAllocation(BSIP, Boot_port,NP);
 						break;
-						
 						
 					case "h":
 							
