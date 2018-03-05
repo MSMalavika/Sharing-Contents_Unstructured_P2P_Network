@@ -1,4 +1,4 @@
-package UnstructuredP2P;
+//package UnstructuredP2P;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -6,7 +6,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-public class unstructpp  {	
+public class unstructpp extends Thread  {	
 	
 	static Hashtable<String, ArrayList<String>> routingTable = new Hashtable<String, ArrayList<String>>();
 	static ArrayList<String> RTDetails = new ArrayList<String>();
@@ -72,7 +72,7 @@ public class unstructpp  {
 	static command cmd = new command();	
 
 	public static void clientThread(int NP, InetAddress BSIP, int Boot_port) {
-        (new Thread() {
+		Thread T= (new Thread() {
         	public void run() {
         		
         		client clientMode = new client(NP,BSIP,Boot_port);
@@ -85,7 +85,7 @@ public class unstructpp  {
         			   
         		   }
         	
-        }).start();
+        });T.setDaemon(true);T.start();
 	}
         
     public static void serverThread(int Nodeport) {
@@ -98,4 +98,6 @@ public class unstructpp  {
         	
         }).start();
     }
+
+    
 }
