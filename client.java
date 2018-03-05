@@ -8,6 +8,7 @@ public class client  {
 	//public String option;
 	public int NP, Boot_port;
 	public InetAddress BSIP;
+	static String uname;
 	
 	static command cmd = new command();
 	
@@ -20,6 +21,9 @@ public class client  {
 	   }
 	   
 	 public void run() throws IOException {
+		 
+		 System.out.println(" Initilize your network with a username");			
+		 uname = System.console().readLine();
 		 
 		 System.out.println("Give the command  for client");			
 		 String option = System.console().readLine();
@@ -36,7 +40,7 @@ public class client  {
 						break;
 					
 					case "UNREGISTER":							
-							cmd.unReg(BSIP, Boot_port);
+							cmd.unReg(BSIP, Boot_port,NP);
 							break;
 					
 					case "LEAVE":						

@@ -3,8 +3,13 @@ package UnstructuredP2P;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class unstructpp  {	
+	
+	static Hashtable<String, ArrayList<String>> routingTable = new Hashtable<String, ArrayList<String>>();
+	static ArrayList<String> RTDetails = new ArrayList<String>();
 	
 	public static void main(String[] args){
 		
@@ -89,8 +94,6 @@ public class unstructpp  {
     			
         		server serverMode = new server(Nodeport);
         		serverMode.run();
-        		
-    			
     		}
         	
         }).start();
