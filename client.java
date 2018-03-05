@@ -29,6 +29,9 @@ public class client  {
 		 String option = System.console().readLine();
 					
 			//System.out.println("option is "+option);
+		 
+		 
+		 /// resource allocation 
 					switch (option){
 					
 					case "REG":							
@@ -45,6 +48,12 @@ public class client  {
 					
 					case "LEAVE":						
 						cmd.leave(BSIP, Boot_port,NP);
+						break;
+						
+					case "QUERY":
+						
+						cmd.query(NP);
+						
 						break;
 						
 					case "h":
