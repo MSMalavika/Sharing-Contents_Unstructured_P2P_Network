@@ -1,18 +1,11 @@
 package UnstructuredP2P;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Scanner;
 
 public class server {
 	
@@ -37,9 +30,6 @@ public class server {
 		            int reqPort = incomming_req.getPort();
 		            String inRequest = new String(incomming_req.getData(),0,incomming_req.getLength());
 		            
-		            ArrayList<String> RTDetails = new ArrayList<String>();
-	            	Hashtable<String, ArrayList<String>> routingTable1 = new Hashtable<String,ArrayList<String>>();
-		            
 		            System.out.println("msg received in server: " + inRequest );
 		            
 		            String[] server_req = inRequest.split(" ");
@@ -50,43 +40,8 @@ public class server {
 		            	
 		            	String sockADD= server_req[2]+":"+server_req[3];
 		            	
-						try {
-							Scanner scanner = new Scanner(new FileReader("RoutingTable.txt"));
-							
-						    while (scanner.hasNextLine()) 
-							    {
-							        String[] columns = scanner.nextLine().split(" ");
-							        for(int i=1;i<columns.length;i++) 
-							        {RTDetails.add(columns[i]);}							        
-							        routingTable1.put(columns[0],RTDetails);
-							    }scanner.close();
-
-						    System.out.println("Map is "+ routingTable1);
-							
-						}catch(FileNotFoundException f) 
-							{
-								routingTable1.put(sockADD, RTDetails);
-							
-								// Creating a Routing table file and writing the sockADD to the file	
-								File file = new File("RoutingTable.txt"); 
-								try
-								{
-								   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-								   for(String p:routingTable1.keySet())
-								   {
-								      bw.write(p + ":" + routingTable1.get(p));
-								      bw.newLine();
-								   }
-								   bw.flush();
-								   bw.close();
-								}catch (IOException I) {
-									System.out.println("Error: " + I);
-									I.printStackTrace();
-								}
-							}
-		            	
 						
-						if (routingTable1.containsKey(sockADD)) 
+						if (unstructpp.routingTable.containsKey(sockADD)) 
 							{
 								String joinmsg= "0014 JOINOK 0"; 
 				            	byte[] joinOkmsg = joinmsg.getBytes();
@@ -94,11 +49,11 @@ public class server {
 								DatagramPacket join_response = new DatagramPacket(joinOkmsg, joinOkmsg.length, reqIP, reqPort);
 								serverSocket.send(join_response);
 						
-							}else if (!routingTable1.containsKey(sockADD))
+							}else if (!unstructpp.routingTable.containsKey(sockADD))
 								{
-									routingTable1.put(sockADD, RTDetails);
+									unstructpp.routingTable.put(sockADD, unstructpp.RTDetails);
 									
-									if (routingTable1.containsKey(sockADD))
+									if (unstructpp.routingTable.containsKey(sockADD))
 									{
 										String joinmsg= "0013 JOINOK 0"; 
 						            	byte[] joinOkmsg = joinmsg.getBytes();
@@ -106,21 +61,6 @@ public class server {
 										DatagramPacket join_response = new DatagramPacket(joinOkmsg, joinOkmsg.length, reqIP, reqPort);
 										serverSocket.send(join_response);
 										
-										// RT update
-										File file = new File("RoutingTable.txt"); 
-										try
-										{
-										   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-										   for(String p:routingTable1.keySet())
-										   {
-										      bw.write(p + ":" + routingTable1.get(p));
-										      bw.newLine();
-										   }
-										   bw.flush();
-										   bw.close();
-										}catch (IOException e) {
-											System.out.println("Error: " + e);
-											e.printStackTrace();}
 										
 									}else {
 											String joinErr = "0016 JOINOK 9999";
@@ -142,43 +82,27 @@ public class server {
 		            	
 		            case "LEAVE":
 		            	String leaveSockAdd=server_req[2]+";"+server_req[3];
-		            // Reading RoutingTable.text 		            	
-		            	
-						try {
-							Scanner scanner = new Scanner(new FileReader("RoutingTable.txt"));
+		           
+		            // removing the node from RT
+						unstructpp.routingTable.remove(leaveSockAdd);
+		            // Sending leave OK message 
+						if(!unstructpp.routingTable.containsKey(leaveSockAdd)){
+							String leavemsg= " LEAVEOK 0";
+							String leaveok= String.format("%04", (leavemsg.length()+4))+leavemsg;
+							byte[] leave = leaveok.getBytes();
+							DatagramPacket leaverespose = new DatagramPacket(leave, leave.length, reqIP, reqPort);
+							serverSocket.send(leaverespose);
 							
-						    while (scanner.hasNextLine()) 
-							    {
-							        String[] columns = scanner.nextLine().split(" ");
-							        for(int i=1;i<columns.length;i++) 
-							        {RTDetails.add(columns[i]);}							        
-							        routingTable1.put(columns[0],RTDetails);
-							    }scanner.close();
-
-						    System.out.println("Map is "+ routingTable1);
+							System.out.println("Status: "+reqIP+":"+ reqPort+" Node Successfully left ");
 							
-						}catch(FileNotFoundException f) {
-							System.err.println("Ststus: RoutingTable.txt not found ");
+						}else {
+							String leavemsg= " LEAVEOK 9999";
+							String leaveok= String.format("%04", (leavemsg.length()+4))+leavemsg;
+							byte[] leave = leaveok.getBytes();
+							DatagramPacket leaverespose = new DatagramPacket(leave, leave.length, reqIP, reqPort);
+							serverSocket.send(leaverespose);
 						}
-		            	
-		            // removing the sockaddd
-						routingTable1.remove(leaveSockAdd);
-		            // writing to RoutingTable.text  
-						File file = new File("RoutingTable.txt"); 
-						try
-						{
-						   BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-						   for(String p:routingTable1.keySet())
-						   {
-						      bw.write(p + ":" + routingTable1.get(p));
-						      bw.newLine();
-						   }
-						   bw.flush();
-						   bw.close();
-						}catch (IOException e) {
-							System.out.println("Error: " + e);
-							e.printStackTrace();}
-		            	
+						
 						break;
 		            default:
 		            	System.out.println(" The incoming request is  "+inRequest);
