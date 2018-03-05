@@ -1,14 +1,18 @@
-package UnstructuredP2P;
+//package UnstructuredP2P;
 
 
+import java.awt.List;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Set;
 
 public class server {
 	
+	static ArrayList<String> nodeResource = new ArrayList<String>();
 	public int Nodeport;
 
 	   public server(int Nodeport)
@@ -104,6 +108,78 @@ public class server {
 						}
 						
 						break;
+		            case "NodeResources":
+		            	
+		            	for(int i=2;i<server_req.length;i++){
+		            		nodeResource.add(server_req[i]);
+		            	}
+		            	break;
+		            	
+		            case "SER":
+		            	
+		            	String searchKey = server_req[4];
+		            	int TTL = Integer.parseInt(server_req[6]);
+		            	InetAddress sIP= InetAddress.getByName(server_req[2]);
+		            	int sPort = Integer.parseInt(server_req[3]);
+		            	int hops= Integer.parseInt(server_req[5]);
+		            	
+		            	TTL=TTL-1;hops= hops+1;
+////////////////////////////////////////////////////////////////////////////////////////////
+//First searching for the resources in the current node
+////////////////////////////////////////////////////////////////////////////////////////////
+		            	int rFound=0; String res=new String();
+		    			for(int a=0;a<server.nodeResource.size();a++){
+		    				String resources= server.nodeResource.get(a);
+		    				if(resources.contains(searchKey))
+		    					{	rFound=rFound+1;
+		    						res = res+" "+resources;}
+		    					}
+////////////////////////////////////////////////////////////////////////////////////////////////
+		    			if(rFound>0){
+		    				
+		    				//sending search OK message
+			            	String search_msg = " SEROK" + rFound+ " "+InetAddress.getLocalHost().getHostAddress()+" "+Nodeport+" "+hops+" "+res ;
+		    				String serOK= String.format("%04", search_msg.length()+4)+search_msg;
+		    				
+		    				byte[] serOKmsg = serOK.getBytes();
+							DatagramPacket serOKPacket = new DatagramPacket(serOKmsg, serOKmsg.length, sIP, sPort);
+							serverSocket.send(serOKPacket);
+		    			
+			    			}else if((rFound==0) && (TTL>0)){
+			    				
+			    				// SEND TO OTHER NODES
+			    				
+			    				Set<String> RTKeys= unstructpp.routingTable.keySet();
+			    				String[] sockAddkey = new String[RTKeys.size()];
+			    				RTKeys.toArray(sockAddkey);
+			    				
+			    				for(int b=0;b<unstructpp.routingTable.size();b++)
+			    					{
+			    						String[] sockAdd = sockAddkey[b].split(":");
+			    						InetAddress ip= InetAddress.getByName(sockAdd[0]);
+			    						int port = Integer.parseInt(sockAdd[1]);
+			    					
+				    					String serForwarding = " "+server_req[1]+" "+ server_req[2]+" "+server_req[3]+" "+server_req[4]+" "+hops+" "+ TTL;
+				    					String serForwardingmsg = String.format("%04", serForwarding.length()+4)+serForwarding;
+				    					byte[] serFordmsg= serForwardingmsg.getBytes();
+				    					
+				    					DatagramPacket serFPacket = new DatagramPacket(serFordmsg, serFordmsg.length, ip, port);
+				    					serverSocket.send(serFPacket);	    					
+			    					}
+			    				
+			    				
+			    			}else if((rFound==0) && !(TTL>0)){
+			    				// kill the packet
+			    				String search_msg = " SEROK" + rFound+ " "+InetAddress.getLocalHost().getHostAddress()+" "+Nodeport+" "+hops;
+			    				String serOK= String.format("%04", search_msg.length()+4)+search_msg;
+			    				
+			    				byte[] serOKmsg = serOK.getBytes();
+								DatagramPacket serOKPacket = new DatagramPacket(serOKmsg, serOKmsg.length, sIP, sPort);
+								serverSocket.send(serOKPacket);
+			    				
+			    			}		            	
+		            	
+		            	break;
 		            default:
 		            	System.out.println(" The incoming request is  "+inRequest);
 		            	break;

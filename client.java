@@ -1,7 +1,8 @@
-package UnstructuredP2P;
+//package UnstructuredP2P;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Scanner;
 
 public class client  {
 	
@@ -24,23 +25,18 @@ public class client  {
 		 
 		 System.out.println(" Initilize your network with a username");			
 		 uname = System.console().readLine();
+		 cmd.reg(BSIP,Boot_port,NP);			
+		 cmd.join(NP);
 		 
-		 System.out.println("Give the command  for client");			
-		 String option = System.console().readLine();
-					
+		 System.out.println("Give the command  for client");
+		 Scanner scan = new Scanner(System.in);
+		 while(true){
+			 String option = scan.next();
+		 	
 			//System.out.println("option is "+option);
-		 
 		 
 		 /// resource allocation 
 					switch (option){
-					
-					case "REG":							
-						cmd.reg(BSIP,Boot_port,NP);
-						break;
-							
-					case "JOIN":						
-						cmd.join(NP);
-						break;
 					
 					case "UNREGISTER":							
 							cmd.unReg(BSIP, Boot_port,NP);
@@ -49,11 +45,13 @@ public class client  {
 					case "LEAVE":						
 						cmd.leave(BSIP, Boot_port,NP);
 						break;
-						
-					case "QUERY":
-						
+					
+					case "QUERY":						
 						cmd.query(NP);
+						break;
 						
+					case "resAll":						
+						cmd.resourceAllocation(BSIP, Boot_port,NP);
 						break;
 						
 					case "h":
@@ -67,7 +65,7 @@ public class client  {
 							break;
 						}	
 				
-		   
+		 }
 	   }
 
 
